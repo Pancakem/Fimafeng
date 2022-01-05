@@ -1,0 +1,15 @@
+[package]
+name = "web-server"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nom = "7.1.0"
+anyhow = "*"
+threadpool = "1.8.1"
+glob = "0.3.0"
+structopt = "0.3.25"
+lazy_static = "1.4.0"
+chrono = "0.4.19"
