@@ -18,8 +18,8 @@ pub fn parse_method(input: &str) -> IResult<&str, Method, VerboseError<&str>> {
         match res {
             Ok((i, _)) => {
                 let m = match method {
-                    "POST" => Method::POST,
-                    "GET" => Method::GET,
+                    "POST" => Method::Post,
+                    "GET" => Method::Get,
                     _ => unreachable!(),
                 };
                 return Ok((i, m));
@@ -29,7 +29,7 @@ pub fn parse_method(input: &str) -> IResult<&str, Method, VerboseError<&str>> {
     }
 
     let e = nom::Err::Incomplete(nom::Needed::new(0));
-    return Err(e);
+    Err(e)
 }
 
 pub fn parse_request_target(input: &str) -> IResult<&str, &str, VerboseError<&str>> {

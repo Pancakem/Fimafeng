@@ -10,14 +10,14 @@ pub type Headers = HashMap<String, String>;
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum Method {
-    GET, POST,
+    Get, Post,
 }
 
 impl ToString for Method{
     fn to_string(&self) -> String {
         match self {
-            Method::GET => "GET".to_string(),
-            Method::POST => "POST".to_string(),
+            Method::Get => "GET".to_string(),
+            Method::Post => "POST".to_string(),
         }
     }
 }
@@ -25,14 +25,14 @@ impl ToString for Method{
 #[derive(PartialEq, Debug, Clone)]
 pub enum HTTPVersion {
     HTTP1,
-    // HTTP2 Not supported
+    HTTP2, // currently not supported
 }
 
 impl ToString for HTTPVersion{
     fn to_string(&self) -> String {
         match self {
             HTTPVersion::HTTP1 => "HTTP/1.1".to_string(),
-            _ => unreachable!(),
+            HTTPVersion::HTTP2 => "HTTP/2".to_string(),
         }
     }
 }

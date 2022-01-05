@@ -58,7 +58,7 @@ impl Server {
 pub fn handle_connection(fm: &FileManager, mut stream: TcpStream) {
         let mut buffer = [0; 512];
 
-        stream.read(&mut buffer).unwrap();
+        stream.read_exact(&mut buffer).unwrap();
 
         let http_req_str = str::from_utf8(&buffer).unwrap();
         let req = Request::try_from(http_req_str).unwrap();
@@ -88,6 +88,6 @@ pub fn handle_connection(fm: &FileManager, mut stream: TcpStream) {
         }
         // handle request
         // write response
-        stream.write(resp.to_string().as_bytes()).unwrap();
+        stream.write_all(resp.to_string().as_bytes()).unwrap();
         stream.flush().unwrap();
 }

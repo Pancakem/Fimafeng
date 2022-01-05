@@ -25,7 +25,7 @@ impl TryFrom<&str> for Request {
         let (remaining_input, headers) = parse_http_headers(remaining_input).unwrap();
 
         let mut body : Option<String> = None;
-        if method == Method::POST {
+        if method == Method::Post {
             body = Some(remaining_input.to_string());
         }
 
