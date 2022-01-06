@@ -8,6 +8,14 @@ pub struct Config {
     pub host: String,
     pub port: u16,
     pub directory: String,
+    pub tls: Option<Tls>,
+}
+
+/// TLS config
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct Tls {
+    pub cert: String,
+    pub key: String,
 }
 
 impl TryFrom<&str> for Config {

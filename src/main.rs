@@ -58,6 +58,7 @@ fn main() {
                 cfg.directory.as_str(),
                 cfg.port,
                 cfg.thread_count,
+                cfg.tls,
             );
 
             server.listen_and_serve();
