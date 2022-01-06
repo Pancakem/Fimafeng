@@ -72,7 +72,7 @@ impl FileManager {
     pub fn template_dir(&self, dir_name: &str) -> Result<File, Error> {
         let file = self.get_file(INDEX_PAGE).unwrap();
         let mut tt = TinyTemplate::new();
-        tt.add_template("index", file.content.as_str());
+        tt.add_template("index", file.content.as_str()).unwrap();
 
         let ld: Vec<String> = FileManager::read_dir(dir_name)
             .iter()

@@ -1,5 +1,5 @@
 use crate::http::{HTTPVersion, STATUS_CODE_MAPPING};
-use chrono::{Utc, DateTime};
+use chrono::{DateTime, Utc};
 
 pub struct Response {
     pub http_version: HTTPVersion,

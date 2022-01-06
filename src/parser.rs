@@ -127,7 +127,7 @@ mod tests {
                 params.insert("base".to_string(), "1".to_string());
                 assert!(keys_match(&map, &params));
             }
-            Err(_e) => return,
+            Err(_e) => {}
         };
     }
 
@@ -140,7 +140,7 @@ mod tests {
                     headers.insert("User-Agent".to_string(), "".to_string());
                     assert!(keys_match(&map, &headers));
                 },
-                Err(_e) => return,
+                Err(_e) => {},
             };
     }
 

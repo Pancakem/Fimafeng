@@ -6,9 +6,9 @@ use std::str;
 use threadpool::ThreadPool;
 
 use crate::file_manager::FileManager;
+use crate::log::{log_request, log_response};
 use crate::request::Request;
 use crate::response::Response;
-use crate::log::{log_request, log_response};
 
 static NAME: &str = "Fimafeng";
 
@@ -16,14 +16,17 @@ pub struct Server {
     port: u16,
     host: String,
     file_manager: FileManager,
+    // number of threads
+    threads: usize,
 }
 
 impl Server {
-    pub fn new(host: &str, web_dir: &str, port: u16) -> Self {
+    pub fn new(host: &str, web_dir: &str, port: u16, threads: usize) -> Self {
         Self {
             host: host.to_string(),
             port,
             file_manager: FileManager::new(web_dir),
+            threads,
         }
     }
 
@@ -34,7 +37,7 @@ impl Server {
     // this function listens for connections and services the requests
     // can handle 10 requests at a time
     pub fn listen_and_serve(&self) {
-        println!("Starting {} at {}:{}", NAME, self.host, self.port);
+        println!("Starting instance at {}:{}", self.host, self.port);
         if !self.port_availability() {
             panic!("Cannot bind to port {}", self.port);
         }
@@ -42,7 +45,7 @@ impl Server {
         let listener = TcpListener::bind((self.host.as_str(), self.port)).unwrap();
 
         // threadpool
-        let pool = ThreadPool::new(10);
+        let pool = ThreadPool::new(self.threads);
 
         for stream in listener.incoming() {
             let stream = stream.unwrap();
@@ -65,7 +68,7 @@ pub fn handle_connection(fm: &FileManager, mut stream: TcpStream) {
     log_request(&req);
     let resp: Response;
 
-    if req.target() == "/" {
+    if req.target() == "" {
         let file = fm.template_dir(fm.base_path().as_str()).unwrap();
         resp = Response::new(
             req.http_ver(),
@@ -96,22 +99,20 @@ pub fn handle_connection(fm: &FileManager, mut stream: TcpStream) {
         stream.write_all(resp.to_string().as_bytes()).unwrap();
         stream.flush().unwrap();
         return;
-    } else {
-        if fm.file_exist(target.as_str()) {
-            let file = fm.get_file(target.as_str()).unwrap();
-            resp = Response::new(
-                req.http_ver(),
-                200,
-                file.content,
-                file.content_type,
-                file.content_length,
-                NAME.to_string(),
-            );
-            log_response(&resp);
-            stream.write_all(resp.to_string().as_bytes()).unwrap();
-            stream.flush().unwrap();
-            return;
-        }
+    } else if fm.file_exist(target.as_str()) {
+        let file = fm.get_file(target.as_str()).unwrap();
+        resp = Response::new(
+            req.http_ver(),
+            200,
+            file.content,
+            file.content_type,
+            file.content_length,
+            NAME.to_string(),
+        );
+        log_response(&resp);
+        stream.write_all(resp.to_string().as_bytes()).unwrap();
+        stream.flush().unwrap();
+        return;
     }
 
     // 404

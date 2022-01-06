@@ -20,9 +20,5 @@ pub fn log_request(request: &Request) {
 /// **response** is the Response object to log.
 
 pub fn log_response(response: &Response) {
-    println!(
-        "[{}] \"{} \"",
-        response.date.time(),
-        response.status_code,
-    );
+    println!("[{}] \"{} \"", response.date.time(), response.status_code,);
 }

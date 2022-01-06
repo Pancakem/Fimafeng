@@ -1,4 +1,4 @@
 thread_count: 10
 host: 127.0.0.1
-port: 8000
-directory: src
+port: 9000
+directory: resources

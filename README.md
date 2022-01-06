@@ -37,8 +37,44 @@ cargo test
 ```
 
 ## Configuration
-Configuring Fimafeng is done with config files written in YAML. Example config files are provided in /resources:
+Configuring Fimafeng is done with config files written in YAML. Example config files are provided in `/resources`.
 
+### Basic configuration
+
+The address and port to host the server on are specified as a string, `address`. The hostnames (values of the `Host` header) to serve are specified in `host`; to serve for all hostnames, the list should contain `'*'`.
+
+The directory to serve files from is specified in `file_root`, and the directory with the required templates is specified in `template_root`.
+
+```yaml
+host: 127.0.0.1
+port: 8000
+thread_count: 5
+directory: 'resources'
+```
+
+Directories are relative to the binary's working directory, not the config file's location.
+
+### HTTPS
+
+By default, Fimafeng communicates with HTTP over TCP with no encryption or added security. However, TLS can be enabled by specifying the optional `tls` dictionary (with required values):
+
+```yaml
+tls:
+  cert_path: 'resources/cert.pem'
+  key_path: 'resources/key.pem'
+```
+
+This is the only optional field in the config, and contains the paths to the TLS certificates and private key files to be used. Note that if TLS is enabled, Fimafeng will no longer serve regular HTTP requests without TLS.
+
+Also, paths are relative to the binary's working directory, not the config file's location.
+
+### Virtual hosting
+
+A naive form of virtual hosting can be done by specifying multiple config files with different `port` values.
+
+```sh
+fimafeng example.yaml example1.yaml
+```
 
 ## Author
 
