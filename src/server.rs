@@ -10,8 +10,10 @@ use crate::log::{log_request, log_response};
 use crate::request::Request;
 use crate::response::Response;
 
+/// Web server name
 static NAME: &str = "Fimafeng";
 
+/// Server object
 pub struct Server {
     port: u16,
     host: String,
@@ -21,6 +23,7 @@ pub struct Server {
 }
 
 impl Server {
+    /// Returns a new Server with a properly initialized file manager
     pub fn new(host: &str, web_dir: &str, port: u16, threads: usize) -> Self {
         Self {
             host: host.to_string(),
@@ -30,12 +33,13 @@ impl Server {
         }
     }
 
+    /// Checks if provided port is available for binding
     pub fn port_availability(&self) -> bool {
         TcpListener::bind((self.host.as_str(), self.port)).is_ok()
     }
 
-    // this function listens for connections and services the requests
-    // can handle 10 requests at a time
+    /// listen_and_serve listens for connections and services the requests
+    /// the number of requests it can handle at a time is specified in threads
     pub fn listen_and_serve(&self) {
         println!("Starting instance at {}:{}", self.host, self.port);
         if !self.port_availability() {

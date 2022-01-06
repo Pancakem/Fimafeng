@@ -4,13 +4,21 @@
 extern crate lazy_static;
 extern crate tinytemplate;
 
+/// Fimafeng server configuration
 mod config;
+/// File manager handles file serving and templating
 mod file_manager;
+/// http definitions
 mod http;
+/// Simple logger for requests and responses
 mod log;
+/// HTTP request parser in **nom**
 mod parser;
+/// HTTP Request object
 mod request;
+/// HTTP Response object
 mod response;
+/// Handles incoming connections;
 mod server;
 
 use crate::config::Config;
@@ -20,7 +28,7 @@ use std::sync::{Arc, Barrier};
 use structopt::StructOpt;
 use threadpool::ThreadPool;
 
-/// A web server
+/// The web server commandline options
 #[derive(StructOpt)]
 struct Cli {
     /// A list of config files

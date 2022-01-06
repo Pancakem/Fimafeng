@@ -1,6 +1,7 @@
 use crate::http::{HTTPVersion, STATUS_CODE_MAPPING};
 use chrono::{DateTime, Utc};
 
+/// HTTP response object
 pub struct Response {
     pub http_version: HTTPVersion,
     pub status_code: u16,

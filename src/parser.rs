@@ -10,6 +10,7 @@ use nom::{
 
 use crate::http::{HTTPVersion, Headers, Method, Params};
 
+/// parses the HTTP request method
 pub fn parse_method(input: &str) -> IResult<&str, Method, VerboseError<&str>> {
     let methods: Vec<&str> = vec!["POST", "GET"];
 
@@ -32,12 +33,13 @@ pub fn parse_method(input: &str) -> IResult<&str, Method, VerboseError<&str>> {
     Err(e)
 }
 
+/// parses the request path
 pub fn parse_request_target(input: &str) -> IResult<&str, &str, VerboseError<&str>> {
     let input = input.trim_start();
     is_not(" \t\r\n?")(input)
 }
 
-// support HTTP version 1 only
+/// support HTTP version 1 only
 pub fn parse_http_version(input: &str) -> IResult<&str, HTTPVersion, VerboseError<&str>> {
     let input = input.trim_start();
     match terminated(tag("HTTP/1.1"), tag("\r\n"))(input) {
@@ -46,8 +48,8 @@ pub fn parse_http_version(input: &str) -> IResult<&str, HTTPVersion, VerboseErro
     }
 }
 
-// parses the request parameters
-// returns a map empty if no parameters were passed
+/// parses the request parameters
+/// returns a map empty if no parameters were passed
 pub fn parse_http_params(input: &str) -> IResult<&str, Params, VerboseError<&str>> {
     let mut params = Params::new();
     let res: Result<(&str, Vec<(&str, &str)>), nom::Err<VerboseError<&str>>> = preceded(
@@ -71,8 +73,8 @@ pub fn parse_http_params(input: &str) -> IResult<&str, Params, VerboseError<&str
     Ok((remaining_input, params))
 }
 
-// parses http headers
-// goes through lines of headers until can't match any headers
+/// parses http headers
+/// goes through lines of headers until can't match any headers
 pub fn parse_http_headers(input: &str) -> IResult<&str, Headers, VerboseError<&str>> {
     let mut headers = Headers::new();
 
@@ -84,7 +86,7 @@ pub fn parse_http_headers(input: &str) -> IResult<&str, Headers, VerboseError<&s
     let (rest_input, res) = res.unwrap();
 
     for (k, v) in res {
-        headers.insert(k.to_string(), v.to_string());
+        headers.push((k.to_string(), v.to_string()));
     }
     Ok((rest_input, headers))
 }
@@ -134,11 +136,11 @@ mod tests {
     #[test]
     fn test_parse_headers() {
         match parse_http_headers("Host: 127.0.0.1\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0\r\n") {
-                Ok((_, map)) => {
+                Ok((_, hdrs)) => {
                     let mut headers = Headers::new();
-                    headers.insert("Host".to_string(), "".to_string());
-                    headers.insert("User-Agent".to_string(), "".to_string());
-                    assert!(keys_match(&map, &headers));
+                    headers.push(("Host".to_string(), "127.0.0.1".to_string()));
+                    headers.push(("User-Agent".to_string(), "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0".to_string()));
+                    assert!(compare_vec(&hdrs, &headers));
                 },
                 Err(_e) => {},
             };
@@ -146,5 +148,10 @@ mod tests {
 
     fn keys_match<T: Eq + Hash, U, V>(map1: &HashMap<T, U>, map2: &HashMap<T, V>) -> bool {
         map1.len() == map2.len() && map1.keys().all(|k| map2.contains_key(k))
+    }
+
+    fn compare_vec<T: PartialEq>(a: &Vec<T>, b: &Vec<T>) -> bool {
+        let matching = a.iter().zip(b.iter()).filter(|&(a, b)| a == b).count();
+        matching == a.len() && matching == b.len()
     }
 }
