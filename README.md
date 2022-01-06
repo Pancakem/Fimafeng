@@ -3,7 +3,7 @@
 [![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](https://github.com/Pancakem/Fimafeng)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Pancakem/Fimafeng/blob/main/LICENSE)
 
-> Fimafeng is a very simple web server implementation of a subset of HTTP/1.1 written from scratch. Its few features are:
+Fimafeng is a very simple web server implementation of a subset of HTTP/1.1 written from scratch. Its few features are:
 
 - HTTPS
 - Virtual hosting
@@ -41,9 +41,8 @@ Configuring Fimafeng is done with config files written in YAML. Example config f
 
 ### Basic configuration
 
-The address and port to host the server on are specified as a string, `address`. The hostnames (values of the `Host` header) to serve are specified in `host`; to serve for all hostnames, the list should contain `'*'`.
-
-The directory to serve files from is specified in `file_root`, and the directory with the required templates is specified in `template_root`.
+The address and port to host the server on are specified as `host` and `port` respectively.
+The directory to serve files from is specified in `directory`, and the the number of concurrent requests a Fifameng server can handle is specified with `thread_count.`.
 
 ```yaml
 host: 127.0.0.1
