@@ -1,14 +1,20 @@
-extern crate glob;
-use glob::glob;
-use std::fs;
-use std::path::{Path,PathBuf};
-
 use anyhow::Error;
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::str::FromStr;
+use tinytemplate::TinyTemplate;
 
 static HOME_PAGE: &str = "index.html";
 static NOT_FOUND: &str = "404.html";
+static INDEX_PAGE: &str = "files.html";
 
-// A file with its relevant metadata
+// Context used to template files in dir
+#[derive(serde::Serialize)]
+struct FilesContext {
+    rows: Vec<String>,
+}
+
+/// A file with its relevant metadata
 pub struct File {
     pub content: String,
     pub content_length: u64,
@@ -25,6 +31,7 @@ impl File {
     }
 }
 
+/// Manages files in the served directory
 #[derive(Clone)]
 pub struct FileManager {
     web_dir: PathBuf,
@@ -33,66 +40,103 @@ pub struct FileManager {
 
 impl FileManager {
     pub fn new(dir: &str) -> Self {
-        let mut listed_files = Vec::new();
-        for entry in glob(dir).unwrap() {
-            match entry {
-                Ok(path) => listed_files.push(path),
-
-                // if the path matched but was unreadable,
-                // thereby preventing its contents from matching
-                Err(e) => println!("{:?}", e),
-            }
-        }
         Self {
             web_dir: PathBuf::from(dir),
-            listed_files,
+            listed_files: FileManager::read_dir(dir),
         }
     }
 
-    pub fn file_exist(&self, name: &str) -> bool {
-        self.listed_files
-            .iter()
-            .find(|val| val.to_str() == Some(name))
-            .is_some()
+    /// Path
+    pub fn base_path(&self) -> String {
+        self.web_dir.to_str().unwrap().to_string()
     }
 
+    /// Checks if a file exists
+    pub fn file_exist(&self, name: &str) -> bool {
+        fs::read(name).is_ok()
+    }
+
+    /// Returns a file content and metadata
     pub fn get_file(&self, name: &str) -> Result<File, Error> {
         let content = fs::read_to_string(name).expect("file read failed");
         let metadata = fs::metadata(name)?;
-        let content_type = self.get_content_type(name);
+        let content_type = FileManager::get_content_type(name);
         let content_length = metadata.len();
 
-        Ok(
-            File::new(
-                content_length,
-                content_type.as_str(),
-                content.as_str(),
-            )
-        )
+        Ok(File::new(
+            content_length,
+            content_type.as_str(),
+            content.as_str(),
+        ))
     }
 
+    pub fn template_dir(&self, dir_name: &str) -> Result<File, Error> {
+        println!("{}", dir_name);
+        let file = self.get_file(INDEX_PAGE).unwrap();
+        let mut tt = TinyTemplate::new();
+        tt.add_template("index", file.content.as_str());
+
+        let ld: Vec<String> = FileManager::read_dir(dir_name)
+            .iter()
+            .map(|x| x.to_str().unwrap().to_string())
+            .collect();
+
+        println!("{:#?}", ld);
+
+        let ctx = FilesContext { rows: ld };
+
+        let content = tt.render("index", &ctx)?;
+        Ok(File {
+            content_length: content.len() as u64,
+            content,
+            content_type: file.content_type,
+        })
+    }
+
+    /// Returns the contents of the home page and its metadata
     pub fn home(&self) -> Result<File, Error> {
         self.get_file(HOME_PAGE)
     }
 
+    /// Returns the contents of the 404 page and its metadata
     pub fn not_found(&self) -> Result<File, Error> {
         self.get_file(NOT_FOUND)
     }
 
-    // checks file extension and returns a mime type
-    // this is wrong!!!
-    fn get_content_type(&self, name:&str) -> String {
-        let ext = Path::new(name).extension().unwrap();
-
-        match ext.to_str().unwrap() {
-            "txt" => "text/text".to_string(),
+    /// checks file extension and returns a mime type
+    /// this is wrong!!!
+    fn get_content_type(name: &str) -> String {
+        let ext = match Path::new(name).extension(){
+            Some(x) => x.to_str().unwrap(),
+            None => "",
+        };
+        match ext {
             "html" => "text/html".to_string(),
             "json" => "application/json".to_string(),
             "png" => "image/png".to_string(),
             "jpg" => "image/jpg".to_string(),
             "gif" => "image/gif".to_string(),
             "jpeg" => "image/jpeg".to_string(),
-            _ => "unknown".to_string(),
+            _ => "text/plain".to_string(),
         }
+    }
+
+    /// Digs deepers into a directory
+    pub fn is_dir(name: &str) -> bool {
+        let metadata = match fs::metadata(name) {
+            Ok(x) => x,
+            Err(_) => return false,
+        };
+        metadata.is_dir()
+    }
+
+    // Reads a directory
+    fn read_dir(name: &str) -> Vec<PathBuf> {
+        let mut listed_files = Vec::new();
+        for entry in fs::read_dir(name).unwrap() {
+            let dir = entry.unwrap();
+            listed_files.push(dir.path());
+        }
+        listed_files
     }
 }

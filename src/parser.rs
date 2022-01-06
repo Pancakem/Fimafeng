@@ -99,8 +99,8 @@ mod tests {
 
     #[test]
     fn test_parse_method() {
-        assert_eq!(parse_method("POST"), Ok(("", Method::POST)));
-        assert_eq!(parse_method("GET"), Ok(("", Method::GET)));
+        assert_eq!(parse_method("POST"), Ok(("", Method::Post)));
+        assert_eq!(parse_method("GET"), Ok(("", Method::Get)));
     }
 
     #[test]

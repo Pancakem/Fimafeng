@@ -9,7 +9,7 @@ use crate::file_manager::FileManager;
 use crate::request::Request;
 use crate::response::Response;
 
-static NAME : &str = "Serve Me. v0.01";
+static NAME: &str = "Fimafeng";
 
 pub struct Server {
     port: u16,
@@ -29,7 +29,6 @@ impl Server {
     pub fn port_availability(&self) -> bool {
         TcpListener::bind((self.host.as_str(), self.port)).is_ok()
     }
-
 
     // this function listens for connections and services the requests
     // can handle 10 requests at a time
@@ -56,17 +55,47 @@ impl Server {
 }
 
 pub fn handle_connection(fm: &FileManager, mut stream: TcpStream) {
-        let mut buffer = [0; 512];
+    let mut buffer = [0; 512];
 
-        stream.read_exact(&mut buffer).unwrap();
+    stream.read(&mut buffer).unwrap();
 
-        let http_req_str = str::from_utf8(&buffer).unwrap();
-        let req = Request::try_from(http_req_str).unwrap();
+    let http_req_str = str::from_utf8(&buffer).unwrap();
+    let req = Request::try_from(http_req_str).unwrap();
 
-        let resp: Response;
+    let resp: Response;
 
-        if req.target() == "/" {
-            let file =  fm.home().unwrap();
+    if req.target() == "/" {
+        let file = fm.template_dir(fm.base_path().as_str()).unwrap();
+        resp = Response::new(
+            req.http_ver(),
+            200,
+            file.content,
+            file.content_type,
+            file.content_length,
+            NAME.to_string(),
+        );
+        stream.write_all(resp.to_string().as_bytes()).unwrap();
+        stream.flush().unwrap();
+        return;
+    }
+    // check target
+    let target = req.target();
+    if FileManager::is_dir(target.as_str()) {
+        let file = fm.template_dir(target.as_str()).unwrap();
+        resp = Response::new(
+            req.http_ver(),
+            200,
+            file.content,
+            file.content_type,
+            file.content_length,
+            NAME.to_string(),
+        );
+        stream.write_all(resp.to_string().as_bytes()).unwrap();
+        stream.flush().unwrap();
+        return;
+    } else {
+        if fm.file_exist(target.as_str()) {
+            let file = fm.get_file(target.as_str()).unwrap();
             resp = Response::new(
                 req.http_ver(),
                 200,
@@ -75,19 +104,23 @@ pub fn handle_connection(fm: &FileManager, mut stream: TcpStream) {
                 file.content_length,
                 NAME.to_string(),
             );
-        }else {
-            let file =  fm.not_found().unwrap();
-            resp = Response::new(
-                req.http_ver(),
-                404,
-                file.content,
-                file.content_type,
-                file.content_length,
-                NAME.to_string(),
-            );
+
+            stream.write_all(resp.to_string().as_bytes()).unwrap();
+            stream.flush().unwrap();
+            return;
         }
-        // handle request
-        // write response
-        stream.write_all(resp.to_string().as_bytes()).unwrap();
-        stream.flush().unwrap();
+    }
+
+    // 404
+    let file = fm.not_found().unwrap();
+    resp = Response::new(
+        req.http_ver(),
+        404,
+        file.content,
+        file.content_type,
+        file.content_length,
+        NAME.to_string(),
+    );
+    stream.write_all(resp.to_string().as_bytes()).unwrap();
+    stream.flush().unwrap();
 }

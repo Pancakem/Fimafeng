@@ -41,5 +41,7 @@ lazy_static! {
     pub static ref STATUS_CODE_MAPPING: HashMap<u16, &'static str> = vec![
         (200, "OK"),
         (404, "Not Found"),
+        (405, "Method Not Allowed"),
+        (500, "Internal Server Error")
     ].into_iter().collect();
 }

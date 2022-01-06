@@ -50,7 +50,7 @@ impl Request {
     }
 
     pub fn target(&self) -> String {
-        self.path.clone()
+        self.path.clone().trim_start_matches("/").to_string()
     }
 
     pub fn body(&self) -> Option<&String> {

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Fimafeng</title>
+  </head>
+  <body>
+    <h1>Directory Tree</h1><p>
+      <a href=".">.</a><br>
+      {{for value in rows}}
+      ├── <a href="./{value}">{value}</a><br>
+      {{endfor}}
+      <br><br>
+    </p>
+    <p>
+      <br><br>
+    </p>
+    <hr>
+    <p class="VERSION">
+      Fimafeng 0.1.0 © 2020
+    </p>
+  </body>
+</html>

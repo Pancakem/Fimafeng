@@ -2,6 +2,7 @@
 
 #[macro_use]
 extern crate lazy_static;
+extern crate tinytemplate;
 
 mod http;
 mod parser;
@@ -14,7 +15,7 @@ use crate::server::Server;
 
 use structopt::StructOpt;
 
-/// Search for a pattern in a file and display the lines that contain it.
+/// A web server
 #[derive(StructOpt)]
 struct Cli {
     /// The host to bind to
@@ -29,7 +30,7 @@ struct Cli {
 fn main() {
 
     let args = Cli::from_args();
-    let server = Server::new(&args.host.as_str(), args.path.to_str().unwrap(), args.port);
+    let server = Server::new(args.host.as_str(), args.path.to_str().unwrap(), args.port);
 
     server.listen_and_serve();
 
