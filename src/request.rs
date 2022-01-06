@@ -1,8 +1,10 @@
+use anyhow::Error;
+use chrono::{NaiveTime, Utc};
+
 use crate::http::{HTTPVersion, Header, Headers, Method, Params};
 use crate::parser::{
     parse_http_headers, parse_http_params, parse_http_version, parse_method, parse_request_target,
 };
-use anyhow::Error;
 
 #[derive(Debug)]
 pub struct Request {
@@ -12,6 +14,7 @@ pub struct Request {
     path: String,
     http_version: HTTPVersion,
     body: Option<String>,
+    time: NaiveTime,
 }
 
 impl TryFrom<&str> for Request {
@@ -24,7 +27,7 @@ impl TryFrom<&str> for Request {
 
         let (remaining_input, headers) = parse_http_headers(remaining_input).unwrap();
 
-        let mut body : Option<String> = None;
+        let mut body: Option<String> = None;
         if method == Method::Post {
             body = Some(remaining_input.to_string());
         }
@@ -36,11 +39,16 @@ impl TryFrom<&str> for Request {
             params,
             headers,
             body,
+            time: Utc::now().time(),
         })
     }
 }
 
 impl Request {
+    pub fn time(&self) -> NaiveTime {
+        self.time
+    }
+
     pub fn method(&self) -> Method {
         self.method
     }
@@ -64,5 +72,4 @@ impl Request {
     pub fn get_param(_param_name: &str) -> String {
         todo!()
     }
-
 }

@@ -4,11 +4,12 @@
 extern crate lazy_static;
 extern crate tinytemplate;
 
+mod file_manager;
 mod http;
+mod log;
 mod parser;
 mod request;
 mod response;
-mod file_manager;
 mod server;
 
 use crate::server::Server;
@@ -28,10 +29,8 @@ struct Cli {
 }
 
 fn main() {
-
     let args = Cli::from_args();
     let server = Server::new(args.host.as_str(), args.path.to_str().unwrap(), args.port);
 
     server.listen_and_serve();
-
 }

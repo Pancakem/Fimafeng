@@ -1,7 +1,6 @@
 use anyhow::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::str::FromStr;
 use tinytemplate::TinyTemplate;
 
 static HOME_PAGE: &str = "index.html";
@@ -71,7 +70,6 @@ impl FileManager {
     }
 
     pub fn template_dir(&self, dir_name: &str) -> Result<File, Error> {
-        println!("{}", dir_name);
         let file = self.get_file(INDEX_PAGE).unwrap();
         let mut tt = TinyTemplate::new();
         tt.add_template("index", file.content.as_str());
@@ -80,8 +78,6 @@ impl FileManager {
             .iter()
             .map(|x| x.to_str().unwrap().to_string())
             .collect();
-
-        println!("{:#?}", ld);
 
         let ctx = FilesContext { rows: ld };
 
@@ -106,7 +102,7 @@ impl FileManager {
     /// checks file extension and returns a mime type
     /// this is wrong!!!
     fn get_content_type(name: &str) -> String {
-        let ext = match Path::new(name).extension(){
+        let ext = match Path::new(name).extension() {
             Some(x) => x.to_str().unwrap(),
             None => "",
         };

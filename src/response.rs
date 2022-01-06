@@ -1,13 +1,14 @@
 use crate::http::{HTTPVersion, STATUS_CODE_MAPPING};
-use chrono::Utc;
+use chrono::{Utc, DateTime};
 
 pub struct Response {
-    http_version: HTTPVersion,
-    status_code: u16,
-    content: String,
-    content_type: String,
-    content_length: u64,
-    server_name: String,
+    pub http_version: HTTPVersion,
+    pub status_code: u16,
+    pub content: String,
+    pub content_type: String,
+    pub content_length: u64,
+    pub server_name: String,
+    pub date: DateTime<Utc>,
 }
 
 impl Response {
@@ -26,6 +27,7 @@ impl Response {
             content_type,
             content_length,
             server_name,
+            date: Utc::now(),
         }
     }
 }
@@ -46,7 +48,7 @@ Connection: keep-alive
             self.status_code,
             STATUS_CODE_MAPPING.get(&self.status_code).unwrap(),
             self.server_name,
-            Utc::now().to_rfc2822(),
+            self.date.to_rfc2822(),
             self.content_type,
             self.content_length,
             self.content,

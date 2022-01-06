@@ -50,15 +50,14 @@ pub fn parse_http_version(input: &str) -> IResult<&str, HTTPVersion, VerboseErro
 // returns a map empty if no parameters were passed
 pub fn parse_http_params(input: &str) -> IResult<&str, Params, VerboseError<&str>> {
     let mut params = Params::new();
-    let res : Result<(&str, Vec<(&str, &str)>), nom::Err<VerboseError<&str>>>  = preceded(
+    let res: Result<(&str, Vec<(&str, &str)>), nom::Err<VerboseError<&str>>> = preceded(
         tag("?"),
-        many0(
-        separated_pair(
+        many0(separated_pair(
             alphanumeric1,
             tag("="),
             alt((terminated(alphanumeric0, tag("&")), alphanumeric0)),
-        ),
-    ))(input);
+        )),
+    )(input);
 
     let (remaining_input, list) = match res {
         Ok(r) => r,
@@ -113,7 +112,10 @@ mod tests {
 
     #[test]
     fn test_parse_http_version() {
-        assert_eq!(parse_http_version("HTTP/1.1\r\n"), Ok(("", HTTPVersion::HTTP1)));
+        assert_eq!(
+            parse_http_version("HTTP/1.1\r\n"),
+            Ok(("", HTTPVersion::HTTP1))
+        );
     }
 
     #[test]
@@ -131,7 +133,7 @@ mod tests {
 
     #[test]
     fn test_parse_headers() {
-            match parse_http_headers("Host: 127.0.0.1\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0\r\n") {
+        match parse_http_headers("Host: 127.0.0.1\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0\r\n") {
                 Ok((_, map)) => {
                     let mut headers = Headers::new();
                     headers.insert("Host".to_string(), "".to_string());

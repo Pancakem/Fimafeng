@@ -1,19 +1,18 @@
 use std::collections::HashMap;
 
-
 pub type Header = (String, String);
 
 pub type Params = HashMap<String, String>;
 
 pub type Headers = HashMap<String, String>;
 
-
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum Method {
-    Get, Post,
+    Get,
+    Post,
 }
 
-impl ToString for Method{
+impl ToString for Method {
     fn to_string(&self) -> String {
         match self {
             Method::Get => "GET".to_string(),
@@ -28,7 +27,7 @@ pub enum HTTPVersion {
     HTTP2, // currently not supported
 }
 
-impl ToString for HTTPVersion{
+impl ToString for HTTPVersion {
     fn to_string(&self) -> String {
         match self {
             HTTPVersion::HTTP1 => "HTTP/1.1".to_string(),
@@ -43,5 +42,7 @@ lazy_static! {
         (404, "Not Found"),
         (405, "Method Not Allowed"),
         (500, "Internal Server Error")
-    ].into_iter().collect();
+    ]
+    .into_iter()
+    .collect();
 }

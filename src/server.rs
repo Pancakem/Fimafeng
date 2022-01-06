@@ -8,6 +8,7 @@ use threadpool::ThreadPool;
 use crate::file_manager::FileManager;
 use crate::request::Request;
 use crate::response::Response;
+use crate::log::{log_request, log_response};
 
 static NAME: &str = "Fimafeng";
 
@@ -61,7 +62,7 @@ pub fn handle_connection(fm: &FileManager, mut stream: TcpStream) {
 
     let http_req_str = str::from_utf8(&buffer).unwrap();
     let req = Request::try_from(http_req_str).unwrap();
-
+    log_request(&req);
     let resp: Response;
 
     if req.target() == "/" {
@@ -74,6 +75,7 @@ pub fn handle_connection(fm: &FileManager, mut stream: TcpStream) {
             file.content_length,
             NAME.to_string(),
         );
+        log_response(&resp);
         stream.write_all(resp.to_string().as_bytes()).unwrap();
         stream.flush().unwrap();
         return;
@@ -90,6 +92,7 @@ pub fn handle_connection(fm: &FileManager, mut stream: TcpStream) {
             file.content_length,
             NAME.to_string(),
         );
+        log_response(&resp);
         stream.write_all(resp.to_string().as_bytes()).unwrap();
         stream.flush().unwrap();
         return;
@@ -104,7 +107,7 @@ pub fn handle_connection(fm: &FileManager, mut stream: TcpStream) {
                 file.content_length,
                 NAME.to_string(),
             );
-
+            log_response(&resp);
             stream.write_all(resp.to_string().as_bytes()).unwrap();
             stream.flush().unwrap();
             return;
@@ -121,6 +124,7 @@ pub fn handle_connection(fm: &FileManager, mut stream: TcpStream) {
         file.content_length,
         NAME.to_string(),
     );
+    log_response(&resp);
     stream.write_all(resp.to_string().as_bytes()).unwrap();
     stream.flush().unwrap();
 }
