@@ -1,0 +1,7 @@
+thread_count: 10
+host: 127.0.0.1
+port: 8000
+directory: src
+tls:
+  cert: "resources/certificate.crt"
+  key: "resources/private.key"
