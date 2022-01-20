@@ -53,7 +53,7 @@ directory: 'resources'
 
 Directories are relative to the binary's working directory, not the config file's location.
 
-### Templating
+### Dynamic HTML
 
 Fimafeng displays dynamic HTML pages using the simple text templating language offered by the crate [tinytemplate](https://crates.io/crates/tinytemplate).
 
