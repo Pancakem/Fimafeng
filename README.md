@@ -53,6 +53,11 @@ directory: 'resources'
 
 Directories are relative to the binary's working directory, not the config file's location.
 
+### Templating
+
+Fimafeng displays dynamic HTML pages using the simple text templating language offered by the crate [tinytemplate](https://crates.io/crates/tinytemplate).
+
+
 ### HTTPS
 
 By default, Fimafeng communicates with HTTP over TCP with no encryption or added security. However, TLS can be enabled by specifying the optional `tls` dictionary (with required values):
